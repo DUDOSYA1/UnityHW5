@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HealthParams
   MaxHp: 100
   MaxHunger: 100
-  HungerPerTime: 20
-  HungerDamage: 30
+  HungerPerTime: 10
+  HungerDamage: 20
   TimeForUpdate: 1

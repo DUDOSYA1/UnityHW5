@@ -6,81 +6,81 @@ public class Health : MonoBehaviour
 {
     [SerializeField] private HealthParams healthParams;
 
-    public int Hp { get { return hp; } set { } }
-    public int Hunger { get { return hunger; } set { } }
-    public bool IsAlive { get { return isAlive; } set { } }
-
-    public Action<int> HpChanged;
-    public Action<int> HungerChanged;
-    public Action Died;
-
-    private int hp
+    public int Hp
     {
-        get { return hp; }
-        set
+        get => hp;
+        private set
         {
-            hp = Mathf.Clamp(hp, 0, healthParams.MaxHp);
-            HpChanged.Invoke(hp);
-            if (hp == 0)
+            hp = Mathf.Clamp(value, 0, healthParams.MaxHp);
+            OnHpChanged?.Invoke(hp);
+
+            if (hp == 0 && isAlive)
             {
                 isAlive = false;
-                Died.Invoke();
+                OnDied?.Invoke();
             }
         }
     }
-    private int hunger
+
+    public int Hunger
     {
-        get { return hunger; }
-        set 
+        get => hunger;
+        private set
         {
-            hunger = Mathf.Clamp(hunger, 0, healthParams.MaxHunger);
-            HungerChanged.Invoke(hunger);
+            hunger = Mathf.Clamp(value, 0, healthParams.MaxHunger);
+            OnHungerChanged?.Invoke(hunger);
         }
     }
-    private bool isAlive;
 
+    public bool IsAlive => isAlive;
+
+    public Action<int> OnHpChanged;
+    public Action<int> OnHungerChanged;
+    public Action OnDied;
+
+    private int hp;
+    private int hunger;
+    private bool isAlive;
 
     private void Awake()
     {
-        if (healthParams is null)
+        if(healthParams == null)
             Debug.LogError("HealthParams are not assigned!");
 
         isAlive = true;
-        hp = healthParams.MaxHp;
-        hunger = healthParams.MaxHunger;
+        Hp = healthParams.MaxHp;
+        Hunger = healthParams.MaxHunger;
 
         StartCoroutine(UpdateStats());
     }
 
-
-    IEnumerator UpdateStats()
+    private IEnumerator UpdateStats()
     {
         while (isAlive)
         {
             yield return new WaitForSeconds(healthParams.TimeForUpdate);
 
-            hunger -= healthParams.HungerPerTime;
-            if(hunger == 0)
-            {
+            Hunger -= healthParams.HungerPerTime;
+            if(Hunger == 0)
                 GetDamage(healthParams.HungerDamage);
-            }
         }
     }
 
-    public void GetHeal(int healAmount) 
+    public void GetHeal(int healAmount)
     {
         if(isAlive)
-            hp += healAmount;
+            Hp += healAmount;
     }
+
     public void GetDamage(int damageAmount)
     {
         if(isAlive)
-            hp -= damageAmount;
+            Hp -= damageAmount;
     }
 
     public void Eat(int hungerAmount)
     {
         if(isAlive)
-            hunger += hungerAmount;
+            Hunger += hungerAmount;
     }
 }
